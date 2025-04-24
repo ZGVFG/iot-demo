@@ -1,7 +1,22 @@
-const WebSocket = require('ws')
-const wss = new WebSocket.Server({ port: 8090 })
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 
-console.log('🌐 WebSocket 服务启动：ws://localhost:8090')
+const app = express();
+const PORT = process.env.PORT || 8090;
+
+const server = http.createServer(app); // 创建 HTTP 服务
+const wss = new WebSocket.Server({ server }); // WebSocket 使用 HTTP 服务
+
+wss.on('connection', (ws) => {
+  console.log('客户端已连接');
+  ws.send('你好，客户端');
+});
+
+server.listen(PORT, () => {
+  console.log(`🌐 HTTP + WebSocket 服务启动：http://localhost:${PORT}`);
+});
+
 
 const deviceKeys = ['motor-rear', 'motor-front', 'bearing-front', 'bearing-rear']
 
