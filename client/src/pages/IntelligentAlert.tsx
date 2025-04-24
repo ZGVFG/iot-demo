@@ -110,8 +110,30 @@ export default function IntelligentAlert() {
     yField: 'value',
     smooth: true,
     height: 300,
-    autoFit: true
-  }
+    autoFit: true,
+    annotations: selectedAlert
+      ? [
+          {
+            type: 'line',
+            start: ['min', selectedAlert.value],
+            end: ['max', selectedAlert.value],
+            style: {
+              stroke: 'red',
+              lineDash: [4, 4],
+              lineWidth: 2,
+            },
+            text: {
+              content: `警戒线：${selectedAlert.value} ${selectedAlert.unit}`,
+              position: 'start',
+              style: {
+                fill: 'red',
+                fontWeight: 600,
+              },
+            },
+          },
+        ]
+      : [],
+  } 
 
   const handleFilter = () => {
     const { component, signalType, alertLevel, timeRange, keyword } = form.getFieldsValue()
