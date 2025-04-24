@@ -50,7 +50,7 @@ export default function IntelligentAlert() {
   const [form] = Form.useForm()
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8090')
+    const ws = new WebSocket('wss://iot-demo-server.onrender.com');
 
     ws.onmessage = (event) => {
       try {
