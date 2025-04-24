@@ -102,43 +102,44 @@ export default function IntelligentAlert() {
   }
 
   const getChartConfig = () => {
-    if (!selectedAlert) return { data: [] }
+    if (!selectedAlert) return { data: [] };
   
-    const baseValue = selectedAlert.value
+    const baseValue = selectedAlert.value;
+    const now = new Date();
+  
+    // 实时数据：最近20分钟
+    const realData = Array.from({ length: 20 }, (_, i) => {
+      const time = new Date(now.getTime() - (19 - i) * 60000); // 每分钟
+      return {
+        time: `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`,
+        value: baseValue + Math.round((Math.random() - 0.5) * 10),
+        type: '实时数据'
+      };
+    });
+  
+    // 警戒线：固定两点，连成一条线
+    const startTime = realData[0].time;
+    const endTime = realData[realData.length - 1].time;
+    const alertLineData = [
+      { time: startTime, value: baseValue, type: '警戒线' },
+      { time: endTime, value: baseValue, type: '警戒线' }
+    ];
   
     return {
-      data: Array.from({ length: 20 }, (_, i) => ({
-        time: `${i}:00`,
-        value: baseValue + Math.round((Math.random() - 0.5) * 10)
-      })),
+      data: [...realData, ...alertLineData],
       xField: 'time',
       yField: 'value',
+      seriesField: 'type',
+      color: ({ type }: { type: string }) => (type === '警戒线' ? 'red' : '#5B8FF9'),
       smooth: true,
       height: 300,
       autoFit: true,
-      annotations: [
-        {
-          type: 'line',
-          start: ['min', baseValue],
-          end: ['max', baseValue],
-          style: {
-            stroke: 'red',
-            lineDash: [4, 4],
-            lineWidth: 2
-          },
-          text: {
-            content: `警戒线：${baseValue} ${selectedAlert.unit}`,
-            position: 'start',
-            style: {
-              fill: 'red',
-              fontWeight: 600
-            }
-          }
-        }
-      ]
-    }
-  }  
-
+      legend: { position: 'top' }
+    };
+  };
+  
+  
+  
   const handleFilter = () => {
     const { component, signalType, alertLevel, timeRange, keyword } = form.getFieldsValue()
 
@@ -259,14 +260,14 @@ export default function IntelligentAlert() {
       </Card>
 
       <Modal
-        title="图谱分析"
-        open={showChartModal}
-        onCancel={() => setShowChartModal(false)}
-        footer={null}
-        width={700}
-      >
-        <Line {...getChartConfig()} />
-      </Modal>
+  title="图谱分析"
+  open={showChartModal}
+  onCancel={() => setShowChartModal(false)}
+  footer={null}
+  width={700}
+>
+  {selectedAlert && <Line {...getChartConfig()} />}
+</Modal>
 
       <Modal
         title="诊断结果"
