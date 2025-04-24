@@ -44,8 +44,8 @@ export default function DeviceStatus() {
   const [chartData, setChartData] = useState<ChartData[]>([])
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8090')
-
+    const ws = new WebSocket('wss://iot-demo-server.onrender.com');
+    
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data)
 
