@@ -101,39 +101,43 @@ export default function IntelligentAlert() {
     }
   }
 
-  const chartConfig = {
-    data: Array.from({ length: 20 }, (_, i) => ({
-      time: `${i}:00`,
-      value: selectedAlert ? selectedAlert.value + Math.round((Math.random() - 0.5) * 10) : 0
-    })),
-    xField: 'time',
-    yField: 'value',
-    smooth: true,
-    height: 300,
-    autoFit: true,
-    annotations: selectedAlert
-      ? [
-          {
-            type: 'line',
-            start: ['min', selectedAlert.value],
-            end: ['max', selectedAlert.value],
-            style: {
-              stroke: 'red',
-              lineDash: [4, 4],
-              lineWidth: 2,
-            },
-            text: {
-              content: `警戒线：${selectedAlert.value} ${selectedAlert.unit}`,
-              position: 'start',
-              style: {
-                fill: 'red',
-                fontWeight: 600,
-              },
-            },
+  const getChartConfig = () => {
+    if (!selectedAlert) return { data: [] }
+  
+    const baseValue = selectedAlert.value
+  
+    return {
+      data: Array.from({ length: 20 }, (_, i) => ({
+        time: `${i}:00`,
+        value: baseValue + Math.round((Math.random() - 0.5) * 10)
+      })),
+      xField: 'time',
+      yField: 'value',
+      smooth: true,
+      height: 300,
+      autoFit: true,
+      annotations: [
+        {
+          type: 'line',
+          start: ['min', baseValue],
+          end: ['max', baseValue],
+          style: {
+            stroke: 'red',
+            lineDash: [4, 4],
+            lineWidth: 2
           },
-        ]
-      : [],
-  } 
+          text: {
+            content: `警戒线：${baseValue} ${selectedAlert.unit}`,
+            position: 'start',
+            style: {
+              fill: 'red',
+              fontWeight: 600
+            }
+          }
+        }
+      ]
+    }
+  }  
 
   const handleFilter = () => {
     const { component, signalType, alertLevel, timeRange, keyword } = form.getFieldsValue()
@@ -261,7 +265,7 @@ export default function IntelligentAlert() {
         footer={null}
         width={700}
       >
-        <Line {...chartConfig} />
+        <Line {...getChartConfig()} />
       </Modal>
 
       <Modal
